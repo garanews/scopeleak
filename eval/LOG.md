@@ -57,6 +57,17 @@ exclusions well but still misses *limits and processes*: a colour change is
 not linked to "two rounds of revisions", a broken form not to "30 days of
 support".
 
+**What v3 does not guarantee.** The validator checks that an `extra` verdict
+cites an existing line in the *excluding* list. It cannot check that the line
+actually excludes *this* request: a real but irrelevant clause would pass.
+Relevance stays probabilistic; that is why the freelancer reviews every
+verdict with the cited lines in front of them.
+
+**v3 is frozen** at tag `v3-frozen` (commit `2297252`). Results on the 19
+development cases above are not independent: the prompt was shaped on them.
+The held-out scenarios are annotated before any model sees them, and are not
+used to change v3.
+
 Failure taxonomy so far:
 - *Reasoning failure* — the model misreads the agreement.
 - *Evidence generation failure* — right verdict, unusable references (v1, v2.1, v2.2).
