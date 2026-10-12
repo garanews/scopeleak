@@ -1,0 +1,56 @@
+[
+  {
+    "id": "web-01",
+    "message": "Great work on the website so far! Could we also add a reserved area where our customers can log in and download their invoices?",
+    "expected": "extra",
+    "note": "Login areas are explicitly excluded (section 4)."
+  },
+  {
+    "id": "web-02",
+    "message": "We'd love for people to pay for orders directly on the site with Stripe. Can you set that up?",
+    "expected": "extra",
+    "note": "Online payments explicitly excluded (section 4)."
+  },
+  {
+    "id": "web-03",
+    "message": "Many of our buyers are from Germany and the UK. Shall we do all the pages in English too?",
+    "expected": "extra",
+    "note": "Multilingual versions excluded (section 4)."
+  },
+  {
+    "id": "web-04",
+    "message": "For the first round of feedback: could you change the button colours to our brand green and make the logo a bit bigger?",
+    "expected": "included",
+    "note": "Covered by revision round 1 (section 3)."
+  },
+  {
+    "id": "web-05",
+    "message": "We also need a Careers page where we can post job openings. It can be simple.",
+    "expected": "extra",
+    "note": "Sixth page; agreement lists exactly five."
+  },
+  {
+    "id": "web-06",
+    "message": "Sorry, I know we already did two rounds of changes, but the boss wants to rework the homepage layout once more.",
+    "expected": "extra",
+    "note": "Third revision round, billable at EUR 50/h (section 3)."
+  },
+  {
+    "id": "web-07",
+    "message": "The site went live last week and the contact form isn't sending emails. Can you take a look?",
+    "expected": "included",
+    "note": "Bug in delivered work within 30 days (section 5)."
+  },
+  {
+    "id": "web-08",
+    "message": "Could you add a newsletter signup box in the footer? Just name and email.",
+    "expected": "ambiguous",
+    "note": "A form, but not the contact form; not excluded, not listed."
+  },
+  {
+    "id": "web-09",
+    "message": "We don't have time to write the About Us text. Can you write something nice about our history?",
+    "expected": "extra",
+    "note": "Copywriting excluded (sections 2 and 4)."
+  }
+]

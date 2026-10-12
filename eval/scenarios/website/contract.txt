@@ -1,0 +1,29 @@
+WEB DESIGN AGREEMENT
+
+Client: Bottega Rossi S.r.l.
+Freelancer: Marco Bianchi, web developer
+Date: 1 October 2026
+Fee: EUR 2,400 (fixed price)
+
+1. DELIVERABLES
+The Freelancer will design and build a company showcase website consisting of five (5) pages: Home, About Us, Products, Gallery, Contact.
+The website will be responsive and built on WordPress with a premium theme chosen by the Client.
+The Contact page will include one contact form that sends submissions to the Client's email address.
+The Freelancer will perform basic on-page SEO (titles, meta descriptions) and image optimisation for all five pages.
+
+2. CONTENT
+All texts and photos will be provided by the Client in Italian before 10 October 2026.
+The Freelancer will insert the provided content into the pages. Copywriting is not included.
+
+3. REVISIONS
+The fee includes two (2) rounds of revisions on the design and layout. Each round may include multiple changes submitted together.
+Additional revision rounds will be billed at EUR 50 per hour.
+
+4. EXCLUSIONS
+The following are not included in this agreement: e-commerce or online payments, user accounts or login areas, multilingual versions, copywriting, hosting fees, and ongoing maintenance.
+
+5. SUPPORT
+After launch, the Freelancer will fix bugs and errors in the delivered work free of charge for thirty (30) days.
+
+6. TIMELINE
+Launch is planned for 31 October 2026.
