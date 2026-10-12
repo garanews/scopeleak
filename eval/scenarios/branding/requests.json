@@ -1,0 +1,62 @@
+[
+  {
+    "id": "brand-01",
+    "message": "We love concept B! Please go ahead and develop that one.",
+    "expected": "included",
+    "note": "Selecting one of the three concepts is the agreed process."
+  },
+  {
+    "id": "brand-02",
+    "message": "Could you make the coffee cup in the logo a bit more brown and the text a little more bold?",
+    "expected": "included",
+    "note": "Revision on the selected concept. Trap: 'more' triggers the keyword baseline."
+  },
+  {
+    "id": "brand-03",
+    "message": "Can you also send us the logo as an SVG? Our web guy is asking for it.",
+    "expected": "included",
+    "note": "SVG is a listed deliverable. Trap: 'also'."
+  },
+  {
+    "id": "brand-04",
+    "message": "Honestly none of the three concepts really clicks for us. Could you show us two more options?",
+    "expected": "extra",
+    "note": "Additional concepts explicitly excluded."
+  },
+  {
+    "id": "brand-05",
+    "message": "For the reopening on the 20th we need the menu redesigned with the new logo.",
+    "expected": "extra",
+    "note": "Menus excluded. Trap: no creep keyword at all."
+  },
+  {
+    "id": "brand-06",
+    "message": "Please print 500 business cards and have them delivered to the café by Friday.",
+    "expected": "extra",
+    "note": "Card design is included, printing is not. Trap: no creep keyword."
+  },
+  {
+    "id": "brand-07",
+    "message": "Our partner bakery next door loved the logo. Could you do one for them as well? Same style.",
+    "expected": "extra",
+    "note": "Logos for other businesses excluded."
+  },
+  {
+    "id": "brand-08",
+    "message": "Where do we find the colour codes and fonts? Our printer needs the exact green.",
+    "expected": "included",
+    "note": "Style sheet with colour codes is a deliverable."
+  },
+  {
+    "id": "brand-09",
+    "message": "What size should the logo be for our Instagram profile picture? Can you send a version that fits?",
+    "expected": "ambiguous",
+    "note": "Social graphics are excluded, but a resized logo export is arguably just a file format."
+  },
+  {
+    "id": "brand-10",
+    "message": "The sign maker needs the logo prepared at three metres wide for the shop front.",
+    "expected": "extra",
+    "note": "Signage excluded. Trap: no creep keyword."
+  }
+]

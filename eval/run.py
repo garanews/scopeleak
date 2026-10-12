@@ -53,7 +53,7 @@ def run_model(model: str, config: dict) -> list[dict]:
             "n_requests": len(items), "seconds": round(elapsed, 2), "items": items,
         })
         print(f"  {case['id']:<8} expected={case['expected']:<9} predicted={first['verdict']:<9} "
-              f"{'(downgraded) ' if rows[-1]['downgraded'] else ''}{elapsed:5.1f}s")
+              f"{'(downgraded) ' if rows[-1]['downgraded'] else ''}{elapsed:5.1f}s", flush=True)
     return rows
 
 
