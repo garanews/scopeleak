@@ -45,7 +45,7 @@ def run_model(model: str, config: dict) -> list[dict]:
                 items = [{"verdict": "ambiguous", "model_verdict": "error", "error": str(exc),
                           "evidence": {"downgraded": False}}]
         elapsed = time.perf_counter() - start
-        first = items[0] if items else {"verdict": "ambiguous", "model_verdict": "none", "evidence": {}}
+        first = items[0] if items else {"verdict": "ambiguous", "model_verdict": "ambiguous", "evidence": {}}
         rows.append({
             "scenario": scenario, "id": case["id"], "expected": case["expected"],
             "predicted": first["verdict"], "model_verdict": first.get("model_verdict"),
@@ -58,12 +58,16 @@ def run_model(model: str, config: dict) -> list[dict]:
 
 
 def metrics(rows: list[dict]) -> dict:
+    """Metrics on the final verdict, plus accuracy on the model's raw verdict
+    (before reference integrity checks) so the effect of the checks is visible."""
     tp = sum(r["expected"] == "extra" and r["predicted"] == "extra" for r in rows)
     fp = sum(r["expected"] != "extra" and r["predicted"] == "extra" for r in rows)
     fn = sum(r["expected"] == "extra" and r["predicted"] != "extra" for r in rows)
     precision = tp / (tp + fp) if tp + fp else 0.0
     recall = tp / (tp + fn) if tp + fn else 0.0
     return {
+        "raw_accuracy": sum(r["expected"] == r["model_verdict"] for r in rows) / len(rows),
+        "raw_false_extra": sum(r["expected"] != "extra" and r["model_verdict"] == "extra" for r in rows),
         "accuracy": sum(r["expected"] == r["predicted"] for r in rows) / len(rows),
         "extra_precision": precision,
         "extra_recall": recall,
@@ -96,10 +100,12 @@ def main():
                                    "base_url": config["base_url"], "rows": rows}, indent=2),
                        encoding="utf-8")
 
-    print(f"\n{'model':<16}{'acc':>6}{'prec':>7}{'rec':>7}{'f1':>7}{'falseX':>8}{'downg':>7}{'sec':>7}")
+    print(f"\n{'model':<16}{'rawAcc':>7}{'rawFX':>6}{'acc':>6}{'prec':>7}{'rec':>7}{'f1':>7}"
+          f"{'falseX':>8}{'downg':>7}{'sec':>7}")
     for model, m in summary.items():
-        print(f"{model:<16}{m['accuracy']:>6.0%}{m['extra_precision']:>7.0%}{m['extra_recall']:>7.0%}"
-              f"{m['extra_f1']:>7.0%}{m['false_extra']:>8}{m['downgraded']:>7}{m['avg_seconds']:>7.1f}")
+        print(f"{model:<16}{m['raw_accuracy']:>7.0%}{m['raw_false_extra']:>6}{m['accuracy']:>6.0%}"
+              f"{m['extra_precision']:>7.0%}{m['extra_recall']:>7.0%}{m['extra_f1']:>7.0%}"
+              f"{m['false_extra']:>8}{m['downgraded']:>7}{m['avg_seconds']:>7.1f}")
 
 
 if __name__ == "__main__":
