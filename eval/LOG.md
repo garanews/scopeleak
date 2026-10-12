@@ -1,6 +1,7 @@
 # Evaluation log
 
-19 annotated requests (scenarios `website` + `branding`), gemma3:4b on a
+19 annotated requests (scenarios `website` + `branding`), gemma3:4b
+(Ollama ID `68ceab7e468a`, 3.9B, Q4_K_M, context 4096, Ollama 0.40.3) on a
 laptop CPU (32 GB RAM, no usable GPU). "Raw" = the model's own verdict;
 "final" = after reference integrity validation.
 
@@ -9,7 +10,9 @@ laptop CPU (32 GB RAM, no usable GPU). "Raw" = the model's own verdict;
 | baseline | keyword regex | 58% | 3 | 58% | 3 | – | 0 |
 | v1 | exact quotes from agreement | 74% | 5 | 53% | 3 | 7 | 36 |
 | v2 | numbered lines (integer schema), verdict last, revisions rule | 79% | 1 | 26% | 0 | 14 | 34 |
-| v2.1 | line refs as strings (`"L18"`) | 68% | 3 | 37% | 0 | 11 | 28 |
+| v2.1 | line refs as strings (`"L18"`) — temp 0.1, no seed | 68% | 3 | 37% | 0 | 11 | 28 |
+| v2.1 | same, temp 0, seed 42 (reference run) | 79% | 1 | 37% | 0 | 10 | 27 |
+| v2.2 | reasoning before line refs | 74% | 1 | 42% | 0 | 8 | 27 |
 
 ## Findings
 
@@ -30,4 +33,17 @@ has looked for the exclusion clause.
 
 **Noise.** Raw accuracy moved 79% → 68% between v2 and v2.1 although nothing
 in the reasoning setup changed. Temperature 0.1 without a seed is too noisy
-for 19 cases; later runs use temperature 0 and a fixed seed.
+for 19 cases; the deterministic rerun of v2.1 gave 79% again. All later runs
+use temperature 0 and seed 42.
+
+**v2.2 — it was never the field order.** Moving the reasoning first changed
+little: all 8 downgrades are `extra` verdicts with an empty line list, and no
+`extra` verdict cites a single line. The reasoning got shorter and stopped
+naming lines at all. For a 4B model, "lines that justify the verdict" means
+"lines that cover the request" — and an extra request, by definition, has
+none. It does not think of citing the clause that *excludes* it.
+
+Failure taxonomy so far:
+- *Reasoning failure* — the model misreads the agreement.
+- *Evidence generation failure* — right verdict, unusable references (v1, v2.1, v2.2).
+- *Validation failure* — usable references rejected by the application (v1 headings, v2 integer schema).

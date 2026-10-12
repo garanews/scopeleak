@@ -1,6 +1,7 @@
 {
   "base_url": "http://localhost:11434/v1",
   "model": "gemma3:4b",
-  "temperature": 0.1,
+  "temperature": 0,
+  "seed": 42,
   "api_key": "local"
 }

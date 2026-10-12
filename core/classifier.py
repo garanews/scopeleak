@@ -1,7 +1,7 @@
 """Agreement + client message -> classified requests with references."""
 from core import evidence, llm
 
-PROMPT_VERSION = "v2.1-line-strings"
+PROMPT_VERSION = "v2.2-reasoning-first"
 
 SYSTEM = """You help freelancers spot scope creep.
 You receive the ORIGINAL AGREEMENT between a freelancer and a client, with numbered lines (L1, L2, ...), and a NEW MESSAGE from the client.
@@ -18,8 +18,10 @@ You receive the ORIGINAL AGREEMENT between a freelancer and a client, with numbe
 4. Never estimate hours or prices.
 """
 
-# Property order matters: the model fills in references and reasoning before
-# it commits to a verdict.
+# Property order matters: the model reasons first, then lists the lines its
+# reasoning relied on, and only then commits to a verdict. With the lines
+# before the reasoning, it left them empty for extra requests and found the
+# exclusion clause only while reasoning (v2.1).
 SCHEMA = {
     "type": "object",
     "properties": {
@@ -30,14 +32,14 @@ SCHEMA = {
                 "properties": {
                     "summary": {"type": "string"},
                     "message_quote": {"type": "string"},
+                    "reasoning": {"type": "string"},
                     # Strings, not integers: the model wants to write "L18" as it
                     # appears in the prompt, and an integer-only grammar made it
                     # emit an empty list instead.
                     "agreement_lines": {"type": "array", "items": {"type": "string"}},
-                    "reasoning": {"type": "string"},
                     "verdict": {"type": "string", "enum": ["included", "extra", "ambiguous"]},
                 },
-                "required": ["summary", "message_quote", "agreement_lines", "reasoning", "verdict"],
+                "required": ["summary", "message_quote", "reasoning", "agreement_lines", "verdict"],
             },
         }
     },

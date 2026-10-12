@@ -27,7 +27,8 @@ def chat_json(config: dict, messages: list[dict], schema: dict) -> dict:
     response = client(config).chat.completions.create(
         model=config["model"],
         messages=messages,
-        temperature=config.get("temperature", 0.1),
+        temperature=config.get("temperature", 0),
+        seed=config.get("seed"),
         response_format={
             "type": "json_schema",
             "json_schema": {"name": "result", "schema": schema},
