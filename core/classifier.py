@@ -1,7 +1,7 @@
 """Agreement + client message -> classified requests with references."""
 from core import evidence, llm
 
-PROMPT_VERSION = "v2-lines"
+PROMPT_VERSION = "v2.1-line-strings"
 
 SYSTEM = """You help freelancers spot scope creep.
 You receive the ORIGINAL AGREEMENT between a freelancer and a client, with numbered lines (L1, L2, ...), and a NEW MESSAGE from the client.
@@ -14,7 +14,7 @@ You receive the ORIGINAL AGREEMENT between a freelancer and a client, with numbe
    Do not mark a request as extra just because it asks for a change: changes inside the agreed limits are included.
 3. References:
    - "message_quote": copy the exact words from the message that contain the request.
-   - "agreement_lines": the numbers of the agreement lines that justify the verdict (for L7 write 7). Use an empty list only if no line applies, and then the verdict must be "ambiguous".
+   - "agreement_lines": the agreement lines that justify the verdict, e.g. ["L7", "L18"]. Use an empty list only if no line applies, and then the verdict must be "ambiguous".
 4. Never estimate hours or prices.
 """
 
@@ -30,7 +30,10 @@ SCHEMA = {
                 "properties": {
                     "summary": {"type": "string"},
                     "message_quote": {"type": "string"},
-                    "agreement_lines": {"type": "array", "items": {"type": "integer"}},
+                    # Strings, not integers: the model wants to write "L18" as it
+                    # appears in the prompt, and an integer-only grammar made it
+                    # emit an empty list instead.
+                    "agreement_lines": {"type": "array", "items": {"type": "string"}},
                     "reasoning": {"type": "string"},
                     "verdict": {"type": "string", "enum": ["included", "extra", "ambiguous"]},
                 },

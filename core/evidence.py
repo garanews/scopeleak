@@ -43,9 +43,11 @@ def validate(item: dict, lines: list[str], message: str) -> dict:
     `ambiguous`. The model's original verdict is kept for evaluation.
     """
     cited = []
-    for n in item.get("agreement_lines", []):
-        valid = isinstance(n, int) and 1 <= n <= len(lines)
-        cited.append({"line": n, "valid": valid, "text": lines[n - 1] if valid else None})
+    for ref in item.get("agreement_lines", []):
+        match = re.fullmatch(r"\s*L?(\d+)\s*", str(ref), re.I)
+        n = int(match.group(1)) if match else None
+        valid = n is not None and 1 <= n <= len(lines)
+        cited.append({"line": ref, "valid": valid, "text": lines[n - 1] if valid else None})
     message_ok = find_quote(item.get("message_quote", ""), message)
     agreement_ok = any(c["valid"] for c in cited)
 
