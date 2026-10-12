@@ -1,27 +1,26 @@
 """Agreement + client message -> classified requests with references."""
 from core import evidence, llm
 
-PROMPT_VERSION = "v2.2-reasoning-first"
+PROMPT_VERSION = "v3-covering-excluding"
 
 SYSTEM = """You help freelancers spot scope creep.
 You receive the ORIGINAL AGREEMENT between a freelancer and a client, with numbered lines (L1, L2, ...), and a NEW MESSAGE from the client.
 
 1. Identify every distinct request the client makes in the message. Merge repeated mentions of the same thing into one request.
-2. For each request, first find the agreement lines that are relevant to it, then decide:
-   - "included": the agreement covers it. This includes work the agreement lists as a deliverable, following the process the agreement describes, revisions within the stated number of rounds, and fixes within the stated support period.
-   - "extra": the agreement explicitly excludes it, or it exceeds a stated limit (number of pages, concepts, revision rounds, support period...), or it is a new deliverable the agreement does not list.
-   - "ambiguous": the agreement neither clearly covers nor clearly excludes it.
+2. For each request, look for two kinds of agreement lines:
+   - "covering_lines": lines that include the request. Examples: it is a listed deliverable, it follows the process the agreement describes, it is a revision within the stated number of rounds, it is a fix within the stated support period.
+   - "excluding_lines": lines that explicitly exclude the request, or that set a limit the request exceeds (number of pages, concepts, revision rounds, support period...).
+   Write lines as they appear, e.g. ["L7", "L18"]. Either list may be empty.
+3. Then decide:
+   - "included": a covering line applies and no excluding line does.
+   - "extra": an excluding line applies.
+   - "ambiguous": no line clearly covers or excludes it. Something the agreement simply does not mention is ambiguous, not extra.
    Do not mark a request as extra just because it asks for a change: changes inside the agreed limits are included.
-3. References:
-   - "message_quote": copy the exact words from the message that contain the request.
-   - "agreement_lines": the agreement lines that justify the verdict, e.g. ["L7", "L18"]. Use an empty list only if no line applies, and then the verdict must be "ambiguous".
-4. Never estimate hours or prices.
+4. "message_quote": copy the exact words from the message that contain the request.
+5. Never estimate hours or prices.
 """
 
-# Property order matters: the model reasons first, then lists the lines its
-# reasoning relied on, and only then commits to a verdict. With the lines
-# before the reasoning, it left them empty for extra requests and found the
-# exclusion clause only while reasoning (v2.1).
+# Property order: the verdict comes last, after reasoning and references.
 SCHEMA = {
     "type": "object",
     "properties": {
@@ -35,11 +34,16 @@ SCHEMA = {
                     "reasoning": {"type": "string"},
                     # Strings, not integers: the model wants to write "L18" as it
                     # appears in the prompt, and an integer-only grammar made it
-                    # emit an empty list instead.
-                    "agreement_lines": {"type": "array", "items": {"type": "string"}},
+                    # emit an empty list instead (v2).
+                    # Two lists, not one: asked for "lines that justify the
+                    # verdict", the model never cited the exclusion clause for
+                    # extra requests (v2.1, v2.2).
+                    "covering_lines": {"type": "array", "items": {"type": "string"}},
+                    "excluding_lines": {"type": "array", "items": {"type": "string"}},
                     "verdict": {"type": "string", "enum": ["included", "extra", "ambiguous"]},
                 },
-                "required": ["summary", "message_quote", "reasoning", "agreement_lines", "verdict"],
+                "required": ["summary", "message_quote", "reasoning", "covering_lines",
+                             "excluding_lines", "verdict"],
             },
         }
     },

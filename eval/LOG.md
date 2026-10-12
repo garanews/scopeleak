@@ -13,6 +13,9 @@ laptop CPU (32 GB RAM, no usable GPU). "Raw" = the model's own verdict;
 | v2.1 | line refs as strings (`"L18"`) — temp 0.1, no seed | 68% | 3 | 37% | 0 | 11 | 28 |
 | v2.1 | same, temp 0, seed 42 (reference run) | 79% | 1 | 37% | 0 | 10 | 27 |
 | v2.2 | reasoning before line refs | 74% | 1 | 42% | 0 | 8 | 27 |
+| **v3** | covering / excluding line lists + "not mentioned ≠ extra" rule | 68% | 1 | **63%** | **0** | 2 | 26 |
+
+v3 final metrics on `extra`: precision 100%, recall 73%, F1 84% (baseline: 70% / 64% / 67%).
 
 ## Findings
 
@@ -42,6 +45,17 @@ little: all 8 downgrades are `extra` verdicts with an empty line list, and no
 naming lines at all. For a 4B model, "lines that justify the verdict" means
 "lines that cover the request" — and an extra request, by definition, has
 none. It does not think of citing the clause that *excludes* it.
+
+**v3 — ask for the evidence you mean.** Two lists instead of one:
+`covering_lines` and `excluding_lines`, and the validator requires the kind
+that matches the verdict (`extra` needs an excluding line). Two changes at
+once, deliberately: the "not mentioned ≠ extra" rule is only enforceable when
+the two kinds of evidence are separate. Result: downgrades 8 → 2, final
+accuracy 42% → 63%, zero false extras. Every one of the 7 remaining errors is
+an `ambiguous` with no lines cited — the model fails safe. It handles explicit
+exclusions well but still misses *limits and processes*: a colour change is
+not linked to "two rounds of revisions", a broken form not to "30 days of
+support".
 
 Failure taxonomy so far:
 - *Reasoning failure* — the model misreads the agreement.

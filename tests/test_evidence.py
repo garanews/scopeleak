@@ -13,9 +13,11 @@ MESSAGE = "Could we take payments with Stripe? Thanks!"
 LINES = evidence.number_lines(AGREEMENT)
 
 
-def item(verdict, lines, quote="Could we take payments with Stripe?"):
-    return {"summary": "s", "message_quote": quote, "agreement_lines": lines,
-            "reasoning": "r", "verdict": verdict}
+def item(verdict, lines, quote="Could we take payments with Stripe?", other=()):
+    """`lines` go in the list the verdict needs; `other` in the opposite list."""
+    covering, excluding = (lines, list(other)) if verdict == "included" else (list(other), lines)
+    return {"summary": "s", "message_quote": quote, "covering_lines": covering,
+            "excluding_lines": excluding, "reasoning": "r", "verdict": verdict}
 
 
 class LineReferences(unittest.TestCase):
@@ -26,12 +28,12 @@ class LineReferences(unittest.TestCase):
         for ref in ("L4", "l4", " L4 ", "4", 4):
             result = evidence.validate(item("extra", [ref]), LINES, MESSAGE)
             self.assertEqual(result["verdict"], "extra", ref)
-            self.assertEqual(result["evidence"]["agreement_lines"][0]["text"], LINES[3])
+            self.assertEqual(result["evidence"]["excluding_lines"][0]["text"], LINES[3])
 
     def test_rejects_lines_that_do_not_exist(self):
         for ref in ("L0", "L99", "line four", "", -1):
             result = evidence.validate(item("extra", [ref]), LINES, MESSAGE)
-            self.assertFalse(result["evidence"]["agreement_lines"][0]["valid"], ref)
+            self.assertFalse(result["evidence"]["excluding_lines"][0]["valid"], ref)
             self.assertEqual(result["verdict"], "ambiguous", ref)
 
     def test_one_valid_line_is_enough(self):
@@ -46,6 +48,16 @@ class Downgrades(unittest.TestCase):
             self.assertEqual(result["verdict"], "ambiguous")
             self.assertEqual(result["model_verdict"], verdict)
             self.assertTrue(result["evidence"]["downgraded"])
+
+    def test_extra_backed_only_by_covering_lines_is_downgraded(self):
+        # "Not mentioned in the agreement" is not evidence of extra work.
+        result = evidence.validate(item("extra", [], other=["L2"]), LINES, MESSAGE)
+        self.assertEqual(result["verdict"], "ambiguous")
+        self.assertTrue(result["evidence"]["downgraded"])
+
+    def test_included_backed_only_by_excluding_lines_is_downgraded(self):
+        result = evidence.validate(item("included", [], other=["L4"]), LINES, MESSAGE)
+        self.assertEqual(result["verdict"], "ambiguous")
 
     def test_invented_message_quote_is_downgraded(self):
         result = evidence.validate(item("extra", ["L4"], quote="please add PayPal too"), LINES, MESSAGE)
