@@ -1,0 +1,20 @@
+it-01 included   # Our new hygienist starts on Monday. Could you create her email account?
+it-02 extra      # The receptionist can't get the clinic email on her own iPhone. Can you set it up for her?
+it-03 extra      # The server is down and we have patients tomorrow morning. It's Saturday night, can you come now?
+it-04 extra      # We've decided to move everything from the old server to the cloud. When can you start?
+it-05 extra      # XDent keeps crashing when we print invoices. Can you have a look?
+it-06 extra      # We're opening a second treatment room. Can you buy two PCs and set them up?
+it-07 included   # I got an email saying last night's backup failed. Is everything ok?
+it-08 included   # Can we move this month's visit to next Tuesday instead of Thursday?
+it-09 extra      # I know you've already done your six hours this month, but the printer is jammed again. Could you connect remotely?
+it-10 ambiguous  # Would you give the staff a one-hour talk on how to recognise phishing emails?
+sm-01 included   # We're launching a new yoga class next week. Can you post about it?
+sm-02 extra      # It's our 10th anniversary this month, so we'd like twenty posts instead of the usual.
+sm-03 extra      # Let's open a TikTok account and post the reels there as well.
+sm-04 included   # Here are the clips from Saturday's spinning marathon. Could you turn them into a reel?
+sm-05 extra      # Sunday is our open day. Can you answer DMs during the event?
+sm-06 extra      # Let's push the ads harder this month: raise the budget to 500 euros, we'll pay for it.
+sm-07 extra      # We need a flyer for the reception desk with the new prices.
+sm-08 ambiguous  # Could you write a newsletter email to our members about the Christmas timetable?
+sm-09 included   # Can we schedule this quarter's photo shoot for the 25th, in the afternoon?
+sm-10 extra      # Someone left a nasty review on our Google page. Can you reply to it?
