@@ -12,7 +12,10 @@ from pathlib import Path
 
 from core import classifier, llm
 
-SCENARIOS = Path(__file__).parent / "scenarios"
+SETS = {
+    "dev": Path(__file__).parent / "scenarios",   # used to shape the prompt
+    "heldout": Path(__file__).parent / "heldout",  # labelled blind, never used for tuning
+}
 RESULTS = Path(__file__).parent / "results"
 LABELS = ("included", "extra", "ambiguous")
 
@@ -25,16 +28,21 @@ def baseline(message: str) -> dict:
     return {"verdict": verdict, "model_verdict": verdict, "evidence": {"downgraded": False}}
 
 
-def load_cases():
-    for scenario in sorted(p for p in SCENARIOS.iterdir() if p.is_dir()):
+def load_cases(root: Path) -> list:
+    cases = []
+    for scenario in sorted(p for p in root.iterdir() if p.is_dir()):
         agreement = (scenario / "contract.txt").read_text(encoding="utf-8")
         for case in json.loads((scenario / "requests.json").read_text(encoding="utf-8")):
-            yield scenario.name, agreement, case
+            cases.append((scenario.name, agreement, case))
+    unlabelled = [case["id"] for _, _, case in cases if case.get("expected") not in LABELS]
+    if unlabelled:
+        raise SystemExit(f"Label these cases before running any model: {', '.join(unlabelled)}")
+    return cases
 
 
-def run_model(model: str, config: dict) -> list[dict]:
+def run_model(model: str, config: dict, cases: list) -> list[dict]:
     rows = []
-    for scenario, agreement, case in load_cases():
+    for scenario, agreement, case in cases:
         start = time.perf_counter()
         if model == "baseline":
             items = [baseline(case["message"])]
@@ -82,21 +90,24 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--models", default="baseline")
     parser.add_argument("--base-url")
+    parser.add_argument("--set", choices=SETS, default="dev")
     args = parser.parse_args()
 
     config = llm.load_config()
     if args.base_url:
         config["base_url"] = args.base_url
+    cases = load_cases(SETS[args.set])
 
     RESULTS.mkdir(exist_ok=True)
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     summary = {}
     for model in args.models.split(","):
         print(f"\n== {model}")
-        rows = run_model(model, config)
+        rows = run_model(model, config, cases)
         summary[model] = metrics(rows)
-        out = RESULTS / f"{stamp}-{model.replace(':', '_')}.json"
-        out.write_text(json.dumps({"model": model, "prompt_version": classifier.PROMPT_VERSION,
+        out = RESULTS / f"{stamp}-{args.set}-{model.replace(':', '_')}.json"
+        out.write_text(json.dumps({"model": model, "set": args.set,
+                                   "prompt_version": classifier.PROMPT_VERSION,
                                    "base_url": config["base_url"], "rows": rows}, indent=2),
                        encoding="utf-8")
 

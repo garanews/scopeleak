@@ -1,0 +1,12 @@
+[
+  {"id": "sm-01", "message": "We're launching a new yoga class next week. Can you post about it?", "expected": null},
+  {"id": "sm-02", "message": "It's our 10th anniversary this month, so we'd like twenty posts instead of the usual.", "expected": null},
+  {"id": "sm-03", "message": "Let's open a TikTok account and post the reels there as well.", "expected": null},
+  {"id": "sm-04", "message": "Here are the clips from Saturday's spinning marathon. Could you turn them into a reel?", "expected": null},
+  {"id": "sm-05", "message": "Sunday is our open day. Can you answer DMs during the event?", "expected": null},
+  {"id": "sm-06", "message": "Let's push the ads harder this month: raise the budget to 500 euros, we'll pay for it.", "expected": null},
+  {"id": "sm-07", "message": "We need a flyer for the reception desk with the new prices.", "expected": null},
+  {"id": "sm-08", "message": "Could you write a newsletter email to our members about the Christmas timetable?", "expected": null},
+  {"id": "sm-09", "message": "Can we schedule this quarter's photo shoot for the 25th, in the afternoon?", "expected": null},
+  {"id": "sm-10", "message": "Someone left a nasty review on our Google page. Can you reply to it?", "expected": null}
+]

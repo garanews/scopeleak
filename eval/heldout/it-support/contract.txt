@@ -1,0 +1,26 @@
+IT SUPPORT RETAINER AGREEMENT
+
+Client: Studio Dentistico Ferri (Bari)
+Consultant: Andrea Greco, freelance IT consultant
+Start date: 1 September 2026
+Fee: EUR 400 per month
+
+1. SERVICES INCLUDED
+Up to six (6) hours per month of remote support for the Client's 8 workstations and 1 file server.
+Creating, modifying and removing Microsoft 365 user accounts for the Client's staff.
+Monitoring of the nightly backups and restoring files when needed.
+Installation of Windows updates and management of the antivirus on the 8 workstations and the server.
+One (1) on-site visit per month, on a date agreed with the Client.
+
+2. RESPONSE TIME
+Requests sent by email are handled by the next business day, Monday to Friday, 9:00-18:00.
+
+3. NOT INCLUDED
+Purchase of hardware or software licences.
+Support for the dental practice management software, which is provided by its vendor.
+Support for staff personal devices.
+Emergency interventions outside business hours, billed at EUR 80 per hour.
+Projects such as migrations, new installations or network redesigns, which will be quoted separately.
+
+4. HOURS
+Hours beyond the monthly allowance are billed at EUR 55 per hour. Unused hours do not carry over to the following month.

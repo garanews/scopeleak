@@ -1,0 +1,12 @@
+[
+  {"id": "it-01", "message": "Our new hygienist starts on Monday. Could you create her email account?", "expected": null},
+  {"id": "it-02", "message": "The receptionist can't get the clinic email on her own iPhone. Can you set it up for her?", "expected": null},
+  {"id": "it-03", "message": "The server is down and we have patients tomorrow morning. It's Saturday night, can you come now?", "expected": null},
+  {"id": "it-04", "message": "We've decided to move everything from the old server to the cloud. When can you start?", "expected": null},
+  {"id": "it-05", "message": "XDent keeps crashing when we print invoices. Can you have a look?", "expected": null},
+  {"id": "it-06", "message": "We're opening a second treatment room. Can you buy two PCs and set them up?", "expected": null},
+  {"id": "it-07", "message": "I got an email saying last night's backup failed. Is everything ok?", "expected": null},
+  {"id": "it-08", "message": "Can we move this month's visit to next Tuesday instead of Thursday?", "expected": null},
+  {"id": "it-09", "message": "I know you've already done your six hours this month, but the printer is jammed again. Could you connect remotely?", "expected": null},
+  {"id": "it-10", "message": "Would you give the staff a one-hour talk on how to recognise phishing emails?", "expected": null}
+]
