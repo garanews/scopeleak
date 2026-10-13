@@ -68,6 +68,43 @@ development cases above are not independent: the prompt was shaped on them.
 The held-out scenarios are annotated before any model sees them, and are not
 used to change v3.
 
+## Held-out challenge set (v3-frozen)
+
+20 requests in two new scenarios (`it-support`, `social-media`), written
+after the v3 error analysis — so a *challenge set*, not a random sample of
+real messages. Labelled independently by a human reviewer and by ChatGPT
+before any model ran on them: agreement 20/20, Cohen's kappa 1.00. Perfect
+agreement also means these cases have clean boundaries; real client messages
+will be messier. Labels frozen in commit `681335f`; classifier code unchanged
+since `v3-frozen`.
+
+| Model | Acc | Extra precision | Extra recall | False extra | Extra → included | s/request |
+|---|---|---|---|---|---|---|
+| baseline | 30% | 50% | 17% | 2 | 10 | 0 |
+| gemma3:4b | 55% | 83% | 42% | 1 | 3 | 31 |
+| gemma4:e4b (Ollama `dc35e8d9c606`) | **85%** | 85% | **92%** | 2 | 1 | 170 |
+
+Gemma 3 4B misses every *quantitative limit* (6 hours used, 20 posts instead
+of 12, ad budget 500 instead of 300) — and here it fails the expensive way,
+calling them `included`. Gemma 4 E4B catches all three. Its three errors:
+
+- `sm-08` newsletter → extra, citing "Platforms other than Instagram". The
+  second annotator raised exactly this doubt while labelling. Debatable, not
+  invented.
+- `it-10` phishing training → extra, citing "Projects such as migrations…".
+  A real clause stretched beyond its meaning.
+- `it-03` Saturday emergency → included, citing the "Emergency interventions
+  … billed at EUR 80" line as *covering* although it sits under NOT INCLUDED.
+
+The first two are the documented limit of reference integrity validation: a
+real but loosely relevant line passes. The third could be caught
+deterministically (a line under a "Not included" heading cannot be a
+covering line), but that fix would be inspired by the held-out set, so any
+v4 result on it must be reported as exploratory.
+
+The trade-off on a laptop CPU: Gemma 4 E4B is far more accurate and about
+5.5× slower (~3 minutes per message).
+
 Failure taxonomy so far:
 - *Reasoning failure* — the model misreads the agreement.
 - *Evidence generation failure* — right verdict, unusable references (v1, v2.1, v2.2).
