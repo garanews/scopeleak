@@ -19,6 +19,26 @@ function clause(text) {
   return (text || "").replace(/^[-•*]\s*/, "");
 }
 
+// A rate written in a cited clause ("EUR 120/hour", "€55 per hour") wins over
+// the default rate: quoting €50 next to a clause that says €120 contradicts itself.
+const RATE_IN_TEXT = /(?:EUR|€)\s?(\d+(?:[.,]\d+)?)\s*(?:\/|per\s+)h(?:ou)?r?\b/i;
+
+function rateFromClauses(r) {
+  for (const c of [...r.evidence.excluding_lines, ...r.evidence.covering_lines]) {
+    const match = c.valid && c.text.match(RATE_IN_TEXT);
+    if (match) {
+      const amount = match[1].replace(/[.,](?=\d{3}$)/, "").replace(",", ".");
+      return { rate: parseFloat(amount), source: String(c.line) };
+    }
+  }
+  return null;
+}
+
+function rateOf(r) {
+  const own = parseFloat(r.rate);
+  return Number.isFinite(own) ? own : (parseFloat($("rate").value) || 0);
+}
+
 function show(which) {
   for (const id of ["empty", "working", "error", "output"]) $(id).hidden = id !== which;
 }
@@ -59,7 +79,12 @@ function renderCards() {
       ? `<p class="downgraded">The model suggested “${esc(r.model_verdict)}” but did not cite a clause of the right kind, so ScopeLeak asks you to check.</p>`
       : "";
     const hours = r.verdict === "extra"
-      ? `<label class="hours">Your estimate <input type="number" min="0" step="0.5" data-hours="${i}" value="${r.hours ?? ""}"> hours</label>`
+      ? `<div class="hours">
+           <label>Your estimate <input type="number" min="0" step="0.5" data-field="hours" data-i="${i}" value="${r.hours ?? ""}"> hours</label>
+           <label>at € <input type="number" min="0" step="5" data-field="rate" data-i="${i}" value="${r.rate ?? ""}" placeholder="${esc($("rate").value)}">/hour</label>
+           ${r.rateSource ? `<span class="hint">rate from ${esc(r.rateSource)}</span>` : ""}
+         </div>
+         <p class="hint">Leave hours empty if this is not work to quote (e.g. a claim): the reply will just decline, citing the clause.</p>`
       : "";
     return `<article class="card ${r.verdict}">
       <div class="card-head"><p class="card-title">${esc(r.summary)}</p><span class="badge">${v.badge}</span></div>
@@ -70,15 +95,16 @@ function renderCards() {
     </article>`;
   }).join("");
 
-  document.querySelectorAll("[data-hours]").forEach((input) =>
+  document.querySelectorAll("[data-field]").forEach((input) =>
     input.addEventListener("input", () => {
-      requests[input.dataset.hours].hours = input.value;
+      const r = requests[input.dataset.i];
+      r[input.dataset.field] = input.value;
+      if (input.dataset.field === "rate") r.rateSource = null;
       renderDraft();
     }));
 }
 
 function renderDraft() {
-  const rate = parseFloat($("rate").value) || 0;
   const lines = requests.map((r) => {
     const q = `“${r.message_quote}”`;
     if (r.verdict === "included") return `• ${q}: this is covered by our agreement, I'll take care of it.`;
@@ -86,8 +112,12 @@ function renderDraft() {
       const basis = r.evidence.excluding_lines.find((c) => c.valid);
       const why = basis ? ` (“${clause(basis.text)}”)` : "";
       const h = parseFloat(r.hours);
-      const estimate = h > 0 ? ` I estimate about ${h} hours, i.e. €${(h * rate).toLocaleString("en")} at €${rate}/hour.` : "";
-      return `• ${q}: this appears to fall outside our original agreement${why}.${estimate} Shall we discuss an additional quote?`;
+      if (!(h > 0)) return `• ${q}: this isn't covered by our agreement${why}.`;
+      const rate = rateOf(r);
+      const unit = h === 1 ? "hour" : "hours";
+      return `• ${q}: this appears to fall outside our original agreement${why}. ` +
+             `I estimate about ${h} ${unit}, i.e. €${(h * rate).toLocaleString("en")} at €${rate}/hour. ` +
+             `Shall we discuss an additional quote?`;
     }
     return `• ${q}: could we quickly clarify whether this is part of the original scope before I start?`;
   });
@@ -120,6 +150,10 @@ async function analyze() {
     if (!response.ok) throw new Error(data.detail || `Error ${response.status}`);
     requests = data.requests;
     if (!requests.length) throw new Error("The model did not find any request in this message.");
+    for (const r of requests) {
+      const found = rateFromClauses(r);
+      if (found) { r.rate = found.rate; r.rateSource = found.source; }
+    }
     if (agreementFile) $("agreement").value = data.lines.join("\n");
     renderCards();
     renderDraft();
@@ -151,7 +185,7 @@ $("example").addEventListener("click", async () => {
   $("message").value = data.message;
 });
 $("analyze").addEventListener("click", analyze);
-$("rate").addEventListener("input", renderDraft);
+$("rate").addEventListener("input", () => { renderCards(); renderDraft(); });
 $("copy").addEventListener("click", async () => {
   await navigator.clipboard.writeText($("draft").value);
   $("copied").hidden = false;

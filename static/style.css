@@ -146,8 +146,9 @@ button, .file-btn {
 .ref-line { font-family: var(--mono); color: var(--muted); }
 .reasoning { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
 .downgraded { font-size: 13px; color: var(--ambiguous); margin: 6px 0 0; }
-.hours { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 14px; }
-.hours input { width: 90px; }
+.hours { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 10px; font-size: 14px; }
+.hours label { display: flex; align-items: center; gap: 6px; font-weight: 500; }
+.hours input { width: 80px; }
 
 .draft { border-top: 1px solid var(--border); padding-top: 16px; margin-top: 6px; }
 .rate { display: flex; align-items: center; gap: 8px; font-weight: 500; }

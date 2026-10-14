@@ -16,3 +16,4 @@ treat any client request: politely, and later.
 | PDF export of proposals | Copy-to-clipboard is enough |
 | Gmail / Outlook / WhatsApp / Stripe integrations | More complexity and more privacy surface |
 | Docker Compose | Ollama on Windows + Docker adds friction, not value |
+| Telling *claims* (SLA credits, refunds) apart from *work requests* | Found in the first test on a real-world-style contract. A new verdict type; for now the user leaves hours empty and the draft declines citing the clause |
