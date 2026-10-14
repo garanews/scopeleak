@@ -21,14 +21,16 @@ function clause(text) {
 
 // A rate written in a cited clause ("EUR 120/hour", "€55 per hour") wins over
 // the default rate: quoting €50 next to a clause that says €120 contradicts itself.
-const RATE_IN_TEXT = /(?:EUR|€)\s?(\d+(?:[.,]\d+)?)\s*(?:\/|per\s+)h(?:ou)?r?\b/i;
+const RATE_IN_TEXT = /(EUR|GBP|USD|€|£|\$)\s?(\d+(?:[.,]\d+)?)\s*(?:\/|per\s+)h(?:ou)?r?\b/i;
+const SYMBOL = { eur: "€", gbp: "£", usd: "$" };
 
 function rateFromClauses(r) {
   for (const c of [...r.evidence.excluding_lines, ...r.evidence.covering_lines]) {
     const match = c.valid && c.text.match(RATE_IN_TEXT);
     if (match) {
-      const amount = match[1].replace(/[.,](?=\d{3}$)/, "").replace(",", ".");
-      return { rate: parseFloat(amount), source: String(c.line) };
+      const amount = match[2].replace(/[.,](?=\d{3}$)/, "").replace(",", ".");
+      return { rate: parseFloat(amount), currency: SYMBOL[match[1].toLowerCase()] || match[1],
+               source: String(c.line) };
     }
   }
   return null;
@@ -81,7 +83,7 @@ function renderCards() {
     const hours = r.verdict === "extra"
       ? `<div class="hours">
            <label>Your estimate <input type="number" min="0" step="0.5" data-field="hours" data-i="${i}" value="${r.hours ?? ""}"> hours</label>
-           <label>at € <input type="number" min="0" step="5" data-field="rate" data-i="${i}" value="${r.rate ?? ""}" placeholder="${esc($("rate").value)}">/hour</label>
+           <label>at ${esc(r.currency || "€")} <input type="number" min="0" step="5" data-field="rate" data-i="${i}" value="${r.rate ?? ""}" placeholder="${esc($("rate").value)}">/hour</label>
            ${r.rateSource ? `<span class="hint">rate from ${esc(r.rateSource)}</span>` : ""}
          </div>
          <p class="hint">Leave hours empty if this is not work to quote (e.g. a claim): the reply will just decline, citing the clause.</p>`
@@ -114,9 +116,10 @@ function renderDraft() {
       const h = parseFloat(r.hours);
       if (!(h > 0)) return `• ${q}: this isn't covered by our agreement${why}.`;
       const rate = rateOf(r);
+      const cur = r.currency || "€";
       const unit = h === 1 ? "hour" : "hours";
       return `• ${q}: this appears to fall outside our original agreement${why}. ` +
-             `I estimate about ${h} ${unit}, i.e. €${(h * rate).toLocaleString("en")} at €${rate}/hour. ` +
+             `I estimate about ${h} ${unit}, i.e. ${cur}${(h * rate).toLocaleString("en")} at ${cur}${rate}/hour. ` +
              `Shall we discuss an additional quote?`;
     }
     return `• ${q}: could we quickly clarify whether this is part of the original scope before I start?`;
@@ -152,7 +155,7 @@ async function analyze() {
     if (!requests.length) throw new Error("The model did not find any request in this message.");
     for (const r of requests) {
       const found = rateFromClauses(r);
-      if (found) { r.rate = found.rate; r.rateSource = found.source; }
+      if (found) { r.rate = found.rate; r.currency = found.currency; r.rateSource = found.source; }
     }
     if (agreementFile) $("agreement").value = data.lines.join("\n");
     renderCards();

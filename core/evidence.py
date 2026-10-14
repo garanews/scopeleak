@@ -26,9 +26,32 @@ def find_quote(quote: str, source: str) -> bool:
     return len(q) >= 8 and q in normalize(source)
 
 
+LONG_LINE = 300
+
+# Sentence boundaries inside a long line: after . ! ? (even with no space, as
+# in "build it.Browser" from a PDF copy-paste) when the next sentence starts
+# with a capital or a section number; never inside "1.2.4" or "e.g.".
+_SENTENCE_BREAK = re.compile(
+    r"(?<=[^\d\s][.!?])(?<!\be\.g\.)(?<!\bi\.e\.)\s*(?=[A-Z\d\"“(])"
+    r"|\s{2,}(?=\d+\.\s)"
+)
+
+
 def number_lines(agreement: str) -> list[str]:
-    """Non-empty lines of the agreement; line N is lines[N - 1]."""
-    return [line.strip() for line in agreement.splitlines() if line.strip()]
+    """Clauses of the agreement; line N is lines[N - 1].
+
+    Normally one clause per non-empty line. Text pasted without line breaks
+    would otherwise become a single giant "line" that the model cannot cite
+    precisely, so lines longer than LONG_LINE are split into sentences.
+    """
+    lines = []
+    for line in agreement.splitlines():
+        line = line.strip()
+        if len(line) > LONG_LINE:
+            lines.extend(part.strip() for part in _SENTENCE_BREAK.split(line) if part.strip())
+        elif line:
+            lines.append(line)
+    return lines
 
 
 def render_numbered(lines: list[str]) -> str:

@@ -24,6 +24,22 @@ class LineReferences(unittest.TestCase):
     def test_numbering_skips_blank_lines(self):
         self.assertEqual(LINES[3], "Not included: e-commerce or online payments.")
 
+    def test_text_without_line_breaks_is_split_into_clauses(self):
+        flat = ("WEB DESIGN AGREEMENTDesigner (Us): Alex Chen. 1. Design and DevelopmentWe will build it."
+                "Browser testing: We will not test in Internet Explorer [cite: 1.2.4].Mobile testing: "
+                "current iOS devices, e.g. iPhones.   2. Text and PhotographsWe are not responsible for "
+                "writing any text copy.You will provide all text.3. Changes and RevisionsNew pages are "
+                "billed at our standard hourly rate of £60 per hour.")
+        lines = evidence.number_lines(flat)
+        self.assertGreater(len(lines), 5)
+        self.assertIn("Browser testing: We will not test in Internet Explorer [cite: 1.2.4].", lines)
+        self.assertTrue(any("e.g. iPhones" in line for line in lines))
+        self.assertTrue(any(line.startswith("3. Changes") for line in lines))
+
+    def test_short_lines_are_never_split(self):
+        line = "On-Premise: no Docker (e.g., k3s). No hypervisors. Billed at EUR 80 per hour."
+        self.assertEqual(evidence.number_lines(line), [line])
+
     def test_accepts_existing_lines_in_any_reasonable_form(self):
         for ref in ("L4", "l4", " L4 ", "4", 4):
             result = evidence.validate(item("extra", [ref]), LINES, MESSAGE)
