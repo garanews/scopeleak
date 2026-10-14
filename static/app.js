@@ -1,9 +1,11 @@
 const $ = (id) => document.getElementById(id);
 
+// First user: "'potentially extra' is too vague". The badge is now direct; the
+// cited clauses right below it are what keeps it honest.
 const VERDICTS = {
-  included: { badge: "Included", text: "This request appears to be covered by your agreement." },
-  extra: { badge: "Potentially extra", text: "This request may require an additional quote. Review the cited clauses before responding." },
-  ambiguous: { badge: "Needs clarification", text: "The agreement does not provide enough evidence for a definitive classification." },
+  included: { badge: "Included", text: "Covered by your agreement." },
+  extra: { badge: "Extra", text: "Not covered by your agreement: quote it before you start. Check the clauses below." },
+  ambiguous: { badge: "Needs clarification", text: "Your agreement doesn't settle this one. Agree on it with the client before you start." },
 };
 
 let requests = [];
@@ -96,7 +98,7 @@ function renderCards() {
            <label>at ${esc(r.currency || defaultCurrency)} <input type="number" min="0" step="5" data-field="rate" data-i="${i}" value="${r.rate ?? ""}" placeholder="${esc($("rate").value)}">/hour</label>
            ${r.rateSource ? `<span class="hint">rate from ${esc(r.rateSource)}</span>` : ""}
          </div>
-         <p class="hint">Leave hours empty if this is not work to quote (e.g. a claim): the reply will just decline, citing the clause.</p>`
+         <p class="hint">Leave hours empty if this is not work to quote (e.g. a claim): the reply will just point to the clause.</p>`
       : "";
     return `<article class="card ${r.verdict}">
       <div class="card-head"><p class="card-title">${esc(r.summary)}</p><span class="badge">${v.badge}</span></div>
@@ -116,25 +118,32 @@ function renderCards() {
     }));
 }
 
+// First user: "no flat 'no's — make it more human". Every line stays neutral
+// on the business decision; the freelancer edits before sending.
 function renderDraft() {
   const lines = requests.map((r) => {
     const q = `“${r.message_quote}”`;
-    if (r.verdict === "included") return `• ${q}: this is covered by our agreement, I'll take care of it.`;
+    if (r.verdict === "included") return `• ${q}: happy to take care of this, it's part of what we agreed.`;
     if (r.verdict === "extra") {
       const basis = r.evidence.excluding_lines.find((c) => c.valid);
-      const why = basis ? ` (“${clause(basis.text)}”)` : "";
       const h = parseFloat(r.hours);
-      if (!(h > 0)) return `• ${q}: this isn't covered by our agreement${why}.`;
+      if (!(h > 0)) {
+        const says = basis ? `our agreement says “${clause(basis.text)}”` : "this isn't covered by our agreement";
+        return `• ${q}: on this point ${says}. Happy to talk it through if you'd like.`;
+      }
+      const why = basis ? ` (“${clause(basis.text)}”)` : "";
       const rate = rateOf(r);
       const cur = r.currency || defaultCurrency;
       const unit = h === 1 ? "hour" : "hours";
-      return `• ${q}: this appears to fall outside our original agreement${why}. ` +
-             `I estimate about ${h} ${unit}, i.e. ${cur}${(h * rate).toLocaleString("en")} at ${cur}${rate}/hour. ` +
-             `Shall we discuss an additional quote?`;
+      return `• ${q}: happy to help with this. It's outside our original agreement${why}, so I'd quote it ` +
+             `separately: about ${h} ${unit}, i.e. ${cur}${(h * rate).toLocaleString("en")} at ${cur}${rate}/hour. ` +
+             `Shall I go ahead?`;
     }
-    return `• ${q}: could we quickly clarify whether this is part of the original scope before I start?`;
+    return `• ${q}: happy to look into this. Our agreement doesn't clearly cover it, so could we quickly ` +
+           `agree on scope (and cost, if any) before I start?`;
   });
-  $("draft").value = `Hi,\n\nThanks for your message.\n\n${lines.join("\n\n")}\n\nBest regards,`;
+  $("draft").value = `Hi,\n\nThanks for your message! Here's where we stand on each point:\n\n` +
+                     `${lines.join("\n\n")}\n\nLet me know what you think.\n\nBest regards,`;
 }
 
 async function analyze() {

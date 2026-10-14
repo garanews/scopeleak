@@ -136,6 +136,33 @@ v3 runs offline: no change on the dev set; on the held-out set one case,
 1 → 0. The rule came from the web-design test, but the developer already knew
 about `it-03`, so the held-out v3.1 figure is exploratory.
 
+## First user (2026-10-14)
+
+A freelance web developer (8 years freelancing, 5 full-time), anonymous at
+his request. He supplied the web-design agreement above (his adaptation of
+the Contract Killer template, with clauses he says he really uses) and five
+tickets modelled on real request types but written with AI help; he also
+polished his written answers with an AI assistant. The opinions are his.
+
+- Scope creep is real for him: "out of five projects, three have at least
+  one extra", and the micro-requests "add up, and in the end they're hours".
+- He agreed with 4 of 5 verdicts. Ticket 3 (Careers page) he would call
+  "billable extra" where v3.1 says "needs clarification" — the conflict check
+  is deliberately conservative. Ticket 5 (portfolio sketch) he would not call
+  extra but "my right".
+- It caught two things he would have given away: taking the Instagram post
+  down and fixing IE11 for free. Also the "once" in the upload clause.
+- He would use it on every incoming message and at the end of a project.
+  He would pay 5–10 €/month, 2–3 € per analysis, or 50–80 € one-off; "not
+  30 €/month". Local analysis "matters a lot": contracts contain client data
+  and rates.
+- Criticism: "potentially extra" is too vague; the draft needs a more human
+  tone; it must not sound like a lawyer; he wants hour/cost estimates.
+
+Changes made from it: badge "Extra" with direct wording, a warmer draft
+reply, a not-legal-advice line. AI-estimated hours stays in the backlog —
+the one thing the user asked for that we deliberately left out.
+
 Failure taxonomy so far:
 - *Reasoning failure* — the model misreads the agreement.
 - *Evidence generation failure* — right verdict, unusable references (v1, v2.1, v2.2).
