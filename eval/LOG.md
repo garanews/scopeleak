@@ -105,6 +105,37 @@ v4 result on it must be reported as exploratory.
 The trade-off on a laptop CPU: Gemma 4 E4B is far more accurate and about
 5.5× slower (~3 minutes per message).
 
+## Informal tests on outside agreements (2026-10-14)
+
+Two agreements not written by the developer, each with 5 client tickets
+written by the tester — useful, but not blind evaluations.
+
+**Threat-intelligence SaaS agreement.** The right clause in 5/5 tickets.
+Both problems were in the draft template, not the model: it quoted €50/hour
+next to a cited clause saying "billed at EUR 120/hour", and offered "an
+additional quote" for an SLA-credit claim. Fixed: a rate in a cited clause
+pre-fills that request's rate; an extra with no hours gets a plain decline.
+
+**Web design agreement ("Contract Killer" template), pasted without line
+breaks.** The whole contract became one line, L1; the model could not cite
+a clause and 4 of 5 correct verdicts were downgraded. Fixed by splitting
+lines over 300 characters into sentences (evaluation contracts unaffected).
+On the rerun, 4/5 right with precise clauses. The fifth is the expensive
+kind of error: "Can we add a Careers page?" → `included`, citing "add new
+pages … won't be a problem" as covering *and* "a separate estimate … billed
+at £60 per hour" as excluding — its own reasoning even says "requiring a
+separate estimate".
+
+**v3.1 — conflict check (validator only).** The v3 prompt already defines
+`included` as "a covering line applies and no excluding line does"; the
+validator now enforces it: `included` with a valid excluding line →
+`ambiguous` (`downgrade_reason: conflicting_evidence`). Re-scoring the stored
+v3 runs offline: no change on the dev set; on the held-out set one case,
+`it-03` for Gemma 4 E4B (included → ambiguous; still wrong, but no longer
+"work for free"). Gemma 4 held-out: accuracy 85% unchanged, extra → included
+1 → 0. The rule came from the web-design test, but the developer already knew
+about `it-03`, so the held-out v3.1 figure is exploratory.
+
 Failure taxonomy so far:
 - *Reasoning failure* — the model misreads the agreement.
 - *Evidence generation failure* — right verdict, unusable references (v1, v2.1, v2.2).

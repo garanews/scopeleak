@@ -75,6 +75,17 @@ class Downgrades(unittest.TestCase):
         result = evidence.validate(item("included", [], other=["L4"]), LINES, MESSAGE)
         self.assertEqual(result["verdict"], "ambiguous")
 
+    def test_included_that_also_cites_an_exclusion_is_downgraded(self):
+        # "New pages are no problem" (covering) + "billed separately" (excluding)
+        result = evidence.validate(item("included", ["L2"], other=["L4"]), LINES, MESSAGE)
+        self.assertEqual(result["verdict"], "ambiguous")
+        self.assertEqual(result["model_verdict"], "included")
+        self.assertEqual(result["evidence"]["downgrade_reason"], "conflicting_evidence")
+
+    def test_extra_may_cite_covering_lines_too(self):
+        result = evidence.validate(item("extra", ["L4"], other=["L2"]), LINES, MESSAGE)
+        self.assertEqual(result["verdict"], "extra")
+
     def test_invented_message_quote_is_downgraded(self):
         result = evidence.validate(item("extra", ["L4"], quote="please add PayPal too"), LINES, MESSAGE)
         self.assertEqual(result["verdict"], "ambiguous")

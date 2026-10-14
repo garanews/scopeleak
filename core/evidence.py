@@ -87,10 +87,18 @@ def validate(item: dict, lines: list[str], message: str) -> dict:
     message_ok = find_quote(item.get("message_quote", ""), message)
 
     verdict = item.get("verdict", "ambiguous")
-    downgraded = False
+    reason = None
     if verdict in REQUIRED_LINES:
         cited = covering if verdict == "included" else excluding
-        downgraded = not (message_ok and any(c["valid"] for c in cited))
+        if not (message_ok and any(c["valid"] for c in cited)):
+            reason = "missing_evidence"
+    # The prompt defines `included` as "a covering line applies and no
+    # excluding line does". A model that cites a valid excluding line and
+    # still says `included` contradicts its own evidence — and that mistake
+    # means working for free, so it is never let through.
+    if verdict == "included" and any(c["valid"] for c in excluding):
+        reason = "conflicting_evidence"
+    downgraded = reason is not None
 
     return {
         **item,
@@ -101,5 +109,6 @@ def validate(item: dict, lines: list[str], message: str) -> dict:
             "covering_lines": covering,
             "excluding_lines": excluding,
             "downgraded": downgraded,
+            "downgrade_reason": reason,
         },
     }

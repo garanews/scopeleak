@@ -1,7 +1,9 @@
 """Agreement + client message -> classified requests with references."""
 from core import evidence, llm
 
-PROMPT_VERSION = "v3-covering-excluding"
+# v3.1 changes the validator only (included + excluding line -> ambiguous);
+# the prompt and schema are identical to v3.
+PROMPT_VERSION = "v3.1-conflict-check"
 
 SYSTEM = """You help freelancers spot scope creep.
 You receive the ORIGINAL AGREEMENT between a freelancer and a client, with numbered lines (L1, L2, ...), and a NEW MESSAGE from the client.

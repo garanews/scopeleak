@@ -36,6 +36,15 @@ function rateFromClauses(r) {
   return null;
 }
 
+// The agreement's own currency is the default unit for every request.
+function currencyOf(lines) {
+  const match = lines.join(" ").match(/\b(EUR|GBP|USD)\b|[€£$]/i);
+  if (!match) return "€";
+  return SYMBOL[(match[1] || "").toLowerCase()] || match[0];
+}
+
+let defaultCurrency = "€";
+
 function rateOf(r) {
   const own = parseFloat(r.rate);
   return Number.isFinite(own) ? own : (parseFloat($("rate").value) || 0);
@@ -77,13 +86,14 @@ function renderCards() {
           `<li><span class="ref-kind">${kind}</span><span class="ref-line">${esc(String(c.line))}</span><span>${esc(clause(c.text))}</span></li>`
         ).join("")}</ul>`
       : `<p class="hint">No clause of the agreement was cited.</p>`;
-    const downgraded = r.evidence.downgraded
-      ? `<p class="downgraded">The model suggested “${esc(r.model_verdict)}” but did not cite a clause of the right kind, so ScopeLeak asks you to check.</p>`
-      : "";
+    const downgraded = !r.evidence.downgraded ? ""
+      : r.evidence.downgrade_reason === "conflicting_evidence"
+        ? `<p class="downgraded">The model suggested “included”, but it also cited a clause that excludes or limits this request. ScopeLeak won't tell you to do it for free: check the clauses.</p>`
+        : `<p class="downgraded">The model suggested “${esc(r.model_verdict)}” but did not cite a clause of the right kind, so ScopeLeak asks you to check.</p>`;
     const hours = r.verdict === "extra"
       ? `<div class="hours">
            <label>Your estimate <input type="number" min="0" step="0.5" data-field="hours" data-i="${i}" value="${r.hours ?? ""}"> hours</label>
-           <label>at ${esc(r.currency || "€")} <input type="number" min="0" step="5" data-field="rate" data-i="${i}" value="${r.rate ?? ""}" placeholder="${esc($("rate").value)}">/hour</label>
+           <label>at ${esc(r.currency || defaultCurrency)} <input type="number" min="0" step="5" data-field="rate" data-i="${i}" value="${r.rate ?? ""}" placeholder="${esc($("rate").value)}">/hour</label>
            ${r.rateSource ? `<span class="hint">rate from ${esc(r.rateSource)}</span>` : ""}
          </div>
          <p class="hint">Leave hours empty if this is not work to quote (e.g. a claim): the reply will just decline, citing the clause.</p>`
@@ -116,7 +126,7 @@ function renderDraft() {
       const h = parseFloat(r.hours);
       if (!(h > 0)) return `• ${q}: this isn't covered by our agreement${why}.`;
       const rate = rateOf(r);
-      const cur = r.currency || "€";
+      const cur = r.currency || defaultCurrency;
       const unit = h === 1 ? "hour" : "hours";
       return `• ${q}: this appears to fall outside our original agreement${why}. ` +
              `I estimate about ${h} ${unit}, i.e. ${cur}${(h * rate).toLocaleString("en")} at ${cur}${rate}/hour. ` +
@@ -153,6 +163,8 @@ async function analyze() {
     if (!response.ok) throw new Error(data.detail || `Error ${response.status}`);
     requests = data.requests;
     if (!requests.length) throw new Error("The model did not find any request in this message.");
+    defaultCurrency = currencyOf(data.lines);
+    $("currency").textContent = defaultCurrency;
     for (const r of requests) {
       const found = rateFromClauses(r);
       if (found) { r.rate = found.rate; r.currency = found.currency; r.rateSource = found.source; }
