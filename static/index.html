@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ScopeLeak</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">◐</span>
+      <div>
+        <h1>ScopeLeak</h1>
+        <p class="tagline">Know before you say yes.</p>
+      </div>
+    </div>
+    <div id="status" class="status">Checking model…</div>
+  </header>
+
+  <main class="layout">
+    <section class="panel inputs" aria-label="Inputs">
+      <div class="field">
+        <div class="label-row">
+          <label for="agreement">Your agreement with the client</label>
+          <label class="file-btn">
+            Upload PDF / TXT
+            <input id="agreement-file" type="file" accept=".pdf,.txt,.md" hidden>
+          </label>
+        </div>
+        <textarea id="agreement" rows="12" placeholder="Paste the quote, contract or statement of work…"></textarea>
+        <p id="file-name" class="hint"></p>
+      </div>
+
+      <div class="field">
+        <label for="message">The client's new message</label>
+        <textarea id="message" rows="5" placeholder="“Great work! Could we also add…”"></textarea>
+      </div>
+
+      <div class="actions">
+        <button id="analyze" class="primary">Check this request</button>
+        <button id="example" class="ghost">Load example</button>
+      </div>
+      <p class="hint">Everything is processed by the model on this machine. Nothing is sent to the client.</p>
+    </section>
+
+    <section class="panel results" aria-label="Results" aria-live="polite">
+      <div id="empty" class="empty">
+        <p class="empty-title">Paste an agreement and a client message.</p>
+        <p>ScopeLeak tells you whether each request is covered, potentially extra, or needs clarification —
+          and shows the lines of your agreement it relied on.</p>
+      </div>
+
+      <div id="working" class="working" hidden>
+        <div class="spinner" aria-hidden="true"></div>
+        <p>Analyzing contract and request… <span id="elapsed">0</span> s</p>
+        <p class="hint">A local model on a laptop CPU can take a few minutes.</p>
+      </div>
+
+      <div id="error" class="error" hidden></div>
+
+      <div id="output" hidden>
+        <div id="cards"></div>
+
+        <div class="draft">
+          <div class="label-row">
+            <h2>Draft reply</h2>
+            <label class="rate">Hourly rate €
+              <input id="rate" type="number" min="0" step="5" value="50">
+            </label>
+          </div>
+          <textarea id="draft" rows="10"></textarea>
+          <div class="actions">
+            <button id="copy" class="primary">Copy reply</button>
+            <span id="copied" class="hint" hidden>Copied.</span>
+          </div>
+          <p class="hint">A suggestion, not a verdict. Review the cited clauses before you send anything.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span id="model-info"></span>
+    <span>Open-weight model · runs locally · <a href="https://github.com/garanews/scopeleak">source</a></span>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

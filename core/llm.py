@@ -16,7 +16,9 @@ def load_config() -> dict:
 
 
 def client(config: dict) -> OpenAI:
-    return OpenAI(base_url=config["base_url"], api_key=config.get("api_key") or "local")
+    # CPU inference with a larger model can take minutes per message.
+    return OpenAI(base_url=config["base_url"], api_key=config.get("api_key") or "local",
+                  timeout=config.get("timeout", 900))
 
 
 def list_models(config: dict) -> list[str]:
