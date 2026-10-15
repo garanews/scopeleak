@@ -47,6 +47,16 @@ def example():
                        "And the button colours should be our brand green."}
 
 
+@app.post("/api/extract")
+def extract(agreement_file: UploadFile = File(...)):
+    """Text of an uploaded agreement, so the user sees (and can fix) it before
+    any analysis. No model involved."""
+    text = parser.extract_text(agreement_file.filename, agreement_file.file.read())
+    if not text.strip():
+        raise HTTPException(400, "No text found in this file. Is it a scanned PDF?")
+    return {"text": text}
+
+
 @app.post("/api/analyze")
 def analyze(message: str = Form(...), agreement: str = Form(""),
             agreement_file: UploadFile | None = File(None)):

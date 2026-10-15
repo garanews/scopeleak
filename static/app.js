@@ -9,7 +9,6 @@ const VERDICTS = {
 };
 
 let requests = [];
-let agreementFile = null;
 
 function esc(text) {
   const div = document.createElement("div");
@@ -157,7 +156,7 @@ function fitDraft() {
 async function analyze() {
   const message = $("message").value.trim();
   const agreement = $("agreement").value.trim();
-  if (!message || (!agreement && !agreementFile)) {
+  if (!message || !agreement) {
     $("error").textContent = "Add both the agreement and the client's message.";
     show("error");
     return;
@@ -166,7 +165,6 @@ async function analyze() {
   const form = new FormData();
   form.append("message", message);
   form.append("agreement", agreement);
-  if (agreementFile) form.append("agreement_file", agreementFile);
 
   show("working");
   $("analyze").disabled = true;
@@ -186,7 +184,6 @@ async function analyze() {
       const found = rateFromClauses(r);
       if (found) { r.rate = found.rate; r.currency = found.currency; r.rateSource = found.source; }
     }
-    if (agreementFile) $("agreement").value = data.lines.join("\n");
     renderCards();
     show("output");
     renderDraft();
@@ -199,16 +196,24 @@ async function analyze() {
   }
 }
 
-$("agreement-file").addEventListener("change", (e) => {
-  agreementFile = e.target.files[0] || null;
-  $("file-name").textContent = agreementFile ? `Using ${agreementFile.name}` : "";
-  if (agreementFile) $("agreement").value = "";
-});
-$("agreement").addEventListener("input", () => {
-  if (agreementFile && $("agreement").value) {
-    agreementFile = null;
-    $("agreement-file").value = "";
-    $("file-name").textContent = "";
+// Show the uploaded agreement right away, so the user sees what will be
+// analysed and can fix extraction problems before waiting for the model.
+$("agreement-file").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const form = new FormData();
+  form.append("agreement_file", file);
+  $("file-name").textContent = `Reading ${file.name}…`;
+  try {
+    const response = await fetch("/api/extract", { method: "POST", body: form });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || `Error ${response.status}`);
+    $("agreement").value = data.text.trim();
+    $("file-name").textContent = `Loaded from ${file.name}. Check the text before you run the analysis.`;
+  } catch (err) {
+    $("file-name").textContent = `Could not read ${file.name}: ${err.message}`;
+  } finally {
+    e.target.value = "";
   }
 });
 $("example").addEventListener("click", async () => {
