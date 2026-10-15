@@ -144,6 +144,14 @@ function renderDraft() {
   });
   $("draft").value = `Hi,\n\nThanks for your message! Here's where we stand on each point:\n\n` +
                      `${lines.join("\n\n")}\n\nLet me know what you think.\n\nBest regards,`;
+  fitDraft();
+}
+
+// Show the whole reply without an inner scrollbar.
+function fitDraft() {
+  const draft = $("draft");
+  draft.style.height = "auto";
+  draft.style.height = `${draft.scrollHeight + 2}px`;
 }
 
 async function analyze() {
@@ -180,8 +188,8 @@ async function analyze() {
     }
     if (agreementFile) $("agreement").value = data.lines.join("\n");
     renderCards();
-    renderDraft();
     show("output");
+    renderDraft();
   } catch (err) {
     $("error").textContent = err.message;
     show("error");
@@ -209,6 +217,7 @@ $("example").addEventListener("click", async () => {
   $("message").value = data.message;
 });
 $("analyze").addEventListener("click", analyze);
+$("draft").addEventListener("input", fitDraft);
 $("rate").addEventListener("input", () => { renderCards(); renderDraft(); });
 $("copy").addEventListener("click", async () => {
   await navigator.clipboard.writeText($("draft").value);
