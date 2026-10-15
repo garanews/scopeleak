@@ -1,0 +1,20 @@
+WEBSITE PROJECT AGREEMENT
+
+Client: Green Fork Bistro
+Developer: Sam Rivera, freelance web developer
+Date: 1 October 2026
+Fee: EUR 3,000 (fixed price)
+
+1. DELIVERABLES
+A responsive website with six (6) pages: Home, Menu, About, Gallery, Reservations, Contact.
+One contact form that sends messages to the Client's email address.
+Basic on-page SEO for all six pages.
+
+2. REVISIONS
+Two (2) rounds of revisions on design and layout are included.
+
+3. SUPPORT
+Bugs in the delivered work are fixed free of charge for thirty (30) days after launch.
+
+4. NOT INCLUDED
+Online payments, user accounts or login areas, multilingual versions and copywriting are not included; if requested, they are quoted separately at EUR 60 per hour.
