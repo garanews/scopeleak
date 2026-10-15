@@ -14,6 +14,8 @@ never leave your laptop.
 > (Side Hustle). See [SCOPE.md](SCOPE.md) for what is being built this week and
 > [BACKLOG.md](BACKLOG.md) for what is deliberately not.
 
+**Demo (61 s):** https://youtu.be/K8b9WwqRlU8 — reproduce it with the files in [`demo/`](demo/).
+
 ## How it works
 
 1. The agreement is split into numbered lines.
